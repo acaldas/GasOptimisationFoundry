@@ -32,19 +32,15 @@ contract GasContract {
         uint256 _amount,
         string calldata _name
     ) external {
-        address senderOfTx = msg.sender;
-        require(balances[senderOfTx] >= _amount);
-        balances[senderOfTx] -= _amount;
-        balances[_recipient] += _amount;
+        unchecked {
+            balances[msg.sender] -= _amount;
+            balances[_recipient] += _amount;
+        }
     }
 
     function addToWhitelist(address _userAddrs, uint256 __tier) external  {
         require(__tier < 255);
         require(msg.sender == contractOwner);
-        uint8 _tier = uint8(__tier);
-        if (_tier > 3) {
-            _tier = 3;
-        }
         emit AddedToWhitelist(_userAddrs, __tier);
     }
 
@@ -52,10 +48,11 @@ contract GasContract {
         address _recipient,
         uint256 _amount
     ) external {
-        address senderOfTx = msg.sender;
-        whiteListStruct[senderOfTx] = _amount;
-        balances[senderOfTx] -= _amount;
-        balances[_recipient] += _amount;
+        whiteListStruct[msg.sender] = _amount;
+        unchecked {
+            balances[msg.sender] -= _amount;
+            balances[_recipient] += _amount;
+        }
         emit WhiteListTransfer(_recipient);
     }
 
